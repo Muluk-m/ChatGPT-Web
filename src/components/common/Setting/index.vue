@@ -18,8 +18,6 @@ interface Emit {
 
 const active = ref('General')
 
-const reload = ref(false)
-
 const show = computed({
   get() {
     return props.visible
@@ -28,13 +26,6 @@ const show = computed({
     emit('update:visible', visible)
   },
 })
-
-function handleReload() {
-  reload.value = true
-  setTimeout(() => {
-    reload.value = false
-  }, 0)
-}
 </script>
 
 <template>
@@ -47,7 +38,7 @@ function handleReload() {
             <span class="ml-2">{{ $t('setting.general') }}</span>
           </template>
           <div class="min-h-[100px]">
-            <General v-if="!reload" @update="handleReload" />
+            <General />
           </div>
         </NTabPane>
         <!-- <NTabPane name="Config" tab="Config">
