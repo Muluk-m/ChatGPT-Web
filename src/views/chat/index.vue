@@ -45,9 +45,34 @@ const loading = ref<boolean>(false)
 const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
+const recognition = new (window as any).webkitSpeechRecognition();
+recognition.lang = 'zh-CN';
+recognition.continuous = true;
+recognition.onresult = (event: any) => {
+	const results = event.results;
+	for (let i = event.resultIndex; i < results.length; ++i) {
+		const result = results[i];
+		if (result.isFinal) {
+			const transcript = result[0].transcript;
+			prompt.value = transcript
+		}
+	}
+};
+
+recognition.onerror = (event: any) => {
+	console.error(event.error);
+};
+
+// function handleSpeech() {
+// 	recognition.start()
+// }
+
+// function handleSpeechStop() {
+// 	recognition.stop()
+// }
 
 function handleSubmit() {
-  onConversation()
+	onConversation()
 }
 
 async function onConversation() {
@@ -349,55 +374,55 @@ function handleExport() {
 }
 
 function handleDelete(index: number) {
-  if (loading.value)
-    return
+	if (loading.value)
+		return
 
-  dialog.warning({
-    title: t('chat.deleteMessage'),
-    content: t('chat.deleteMessageConfirm'),
-    positiveText: t('common.yes'),
-    negativeText: t('common.no'),
-    onPositiveClick: () => {
-      chatStore.deleteChatByUuid(+uuid, index)
-    },
-  })
+	dialog.warning({
+		title: t('chat.deleteMessage'),
+		content: t('chat.deleteMessageConfirm'),
+		positiveText: t('common.yes'),
+		negativeText: t('common.no'),
+		onPositiveClick: () => {
+			chatStore.deleteChatByUuid(+uuid, index)
+		},
+	})
 }
 
 function handleClear() {
-  if (loading.value)
-    return
+	if (loading.value)
+		return
 
-  dialog.warning({
-    title: t('chat.clearChat'),
-    content: t('chat.clearChatConfirm'),
-    positiveText: t('common.yes'),
-    negativeText: t('common.no'),
-    onPositiveClick: () => {
-      chatStore.clearChatByUuid(+uuid)
-    },
-  })
+	dialog.warning({
+		title: t('chat.clearChat'),
+		content: t('chat.clearChatConfirm'),
+		positiveText: t('common.yes'),
+		negativeText: t('common.no'),
+		onPositiveClick: () => {
+			chatStore.clearChatByUuid(+uuid)
+		},
+	})
 }
 
 function handleEnter(event: KeyboardEvent) {
-  if (!isMobile.value) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault()
-      handleSubmit()
-    }
-  }
-  else {
-    if (event.key === 'Enter' && event.ctrlKey) {
-      event.preventDefault()
-      handleSubmit()
-    }
-  }
+	if (!isMobile.value) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault()
+			handleSubmit()
+		}
+	}
+	else {
+		if (event.key === 'Enter' && event.ctrlKey) {
+			event.preventDefault()
+			handleSubmit()
+		}
+	}
 }
 
 function handleStop() {
-  if (loading.value) {
-    controller.abort()
-    loading.value = false
-  }
+	if (loading.value) {
+		controller.abort()
+		loading.value = false
+	}
 }
 
 // 可优化部分
@@ -426,13 +451,13 @@ const renderOption = (option: { label: string }) => {
 }
 
 const placeholder = computed(() => {
-  if (isMobile.value)
-    return t('chat.placeholderMobile')
-  return t('chat.placeholder')
+	if (isMobile.value)
+		return t('chat.placeholderMobile')
+	return t('chat.placeholder')
 })
 
 const buttonDisabled = computed(() => {
-  return loading.value || !prompt.value || prompt.value.trim() === ''
+	return loading.value || !prompt.value || prompt.value.trim() === ''
 })
 
 const footerClass = computed(() => {
@@ -443,12 +468,12 @@ const footerClass = computed(() => {
 })
 
 onMounted(() => {
-  scrollToBottom()
+	scrollToBottom()
 })
 
 onUnmounted(() => {
-  if (loading.value)
-    controller.abort()
+	if (loading.value)
+		controller.abort()
 })
 </script>
 
