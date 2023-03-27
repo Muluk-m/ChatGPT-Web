@@ -2,11 +2,10 @@
 import { computed, ref } from 'vue'
 import { NModal, NTabPane, NTabs } from 'naive-ui'
 import General from './General.vue'
+import Advanced from './Advanced.vue'
+import About from './About.vue'
+import { useAuthStore } from '@/store'
 import { SvgIcon } from '@/components/common'
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<Emit>()
 
 interface Props {
   visible: boolean
@@ -15,6 +14,14 @@ interface Props {
 interface Emit {
   (e: 'update:visible', visible: boolean): void
 }
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emit>()
+
+const authStore = useAuthStore()
+
+const isChatGPTAPI = computed<boolean>(() => !!authStore.isChatGPTAPI)
 
 const active = ref('General')
 
@@ -41,13 +48,24 @@ const show = computed({
             <General />
           </div>
         </NTabPane>
-        <!-- <NTabPane name="Config" tab="Config">
-          <template #tab>
-            <SvgIcon class="text-lg" icon="ri:list-settings-line" />
-            <span class="ml-2">{{ $t('setting.config') }}</span>
-          </template>
-          <About />
-        </NTabPane> -->
+        <NTabPane name="Config" tab="Config">
+          <NTabPane v-if="isChatGPTAPI" name="Advanced" tab="Advanced">
+            <template #tab>
+              <SvgIcon class="text-lg" icon="ri:equalizer-line" />
+              <span class="ml-2">{{ $t('setting.advanced') }}</span>
+            </template>
+            <div class="min-h-[100px]">
+              <Advanced />
+            </div>
+          </NTabPane>
+          <NTabPane name="Config" tab="Config">
+            <template #tab>
+              <SvgIcon class="text-lg" icon="ri:list-settings-line" />
+              <span class="ml-2">{{ $t('setting.config') }}</span>
+            </template>
+            <About />
+          </NTabPane>
+        </ntabpane>
       </NTabs>
     </div>
   </NModal>
